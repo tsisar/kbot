@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Token = os.Getenv("TELEGRAM_TOKEN")
+var Token = os.Getenv("TELE_TOKEN")
 
 // kbotCmd represents the kbot command
 var kbotCmd = &cobra.Command{
