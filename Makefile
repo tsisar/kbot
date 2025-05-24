@@ -22,13 +22,7 @@ windows:
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-windows-amd64.exe .
 
 image:
-	docker buildx create --use --name $(APP)-builder || true
-	docker buildx inspect $(APP)-builder --bootstrap
-	docker buildx build \
-		--platform=linux/amd64,linux/arm64 \
-		--tag $(IMAGE) \
-		--push \
-		.
+	docker build -t $(IMAGE) .
 
 clean:
 	rm -rf build
