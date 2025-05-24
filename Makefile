@@ -1,9 +1,9 @@
-REGISTRY := ghcr.io/my-org
+REGISTRY := ghcr.io/tsisar
 APP := kbot
 VERSION := $(shell git rev-parse --short HEAD)
 IMAGE := $(REGISTRY)/$(APP):$(VERSION)
 
-PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
+PLATFORMS := linux/amd64,linux/arm64
 
 .PHONY: all linux linux-arm64 darwin darwin-arm64 windows image test clean
 
@@ -31,11 +31,9 @@ windows:
 
 image:
 	docker buildx build \
-		--platform $(PLATFORMS) \
-		--tag $(IMAGE) \
-		--build-arg TARGETOS=linux \
-		--build-arg TARGETARCH=amd64 \
-		--output=type=docker \
+		--platform=$(PLATFORMS) \
+		--tag=$(IMAGE) \
+		--push \
 		.
 
 test:
