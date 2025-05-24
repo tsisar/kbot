@@ -1,43 +1,34 @@
 REGISTRY := ghcr.io/tsisar
-APP := kbot
+APP := demoapp
 VERSION := $(shell git rev-parse --short HEAD)
 IMAGE := $(REGISTRY)/$(APP):$(VERSION)
 
-PLATFORMS := linux/amd64,linux/arm64
+PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 windows/amd64
 
-.PHONY: all linux linux-arm64 darwin darwin-arm64 windows image test clean
+.PHONY: all linux arm darwin windows image clean
 
-all: linux linux-arm64 darwin darwin-arm64 windows
+all: linux arm darwin windows
 
 linux:
-	mkdir -p build
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-linux-amd64 .
 
-linux-arm64:
-	mkdir -p build
+arm:
 	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o build/$(APP)-linux-arm64 .
 
 darwin:
-	mkdir -p build
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-darwin-amd64 .
-
-darwin-arm64:
-	mkdir -p build
-	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o build/$(APP)-darwin-arm64 .
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-darwin-arm64 .
 
 windows:
-	mkdir -p build
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-windows-amd64.exe .
 
 image:
+	docker buildx create --use --name $(APP)-builder || true
+	docker buildx inspect $(APP)-builder --bootstrap
 	docker buildx build \
-		--platform=$(PLATFORMS) \
-		--tag=$(IMAGE) \
+		--platform=linux/amd64,linux/arm64 \
+		--tag $(IMAGE) \
 		--push \
 		.
-
-test:
-	docker run --rm $(IMAGE)
 
 clean:
 	rm -rf build

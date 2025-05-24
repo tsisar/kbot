@@ -1,9 +1,8 @@
-FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine AS builder
+# syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM quay.io/projectquay/golang:1.21 AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
-
-RUN apk add --no-cache gcc musl-dev
 
 WORKDIR /app
 
@@ -12,14 +11,16 @@ RUN go mod download
 
 COPY . .
 
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -ldflags="-s -w" -o /kbot .
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go test -v ./... -cover -short > /test-result.txt && \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o /app/build-output .
 
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk add --no-cache ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /kbot .
+COPY --from=builder /app/build-output ./app
+COPY --from=builder /test-result.txt .
 
-ENTRYPOINT ["./kbot", "start"]
+ENTRYPOINT ["./app"]
