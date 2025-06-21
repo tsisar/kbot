@@ -1,5 +1,5 @@
 REGISTRY := ghcr.io/tsisar
-APP := demoapp
+APP := kbot
 VERSION := $(shell git rev-parse --short HEAD)
 IMAGE := $(REGISTRY)/$(APP):$(VERSION)
 
@@ -10,16 +10,16 @@ PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 windows/amd64
 all: linux arm darwin windows
 
 linux:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-linux-amd64 .
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bin/$(APP)-linux-amd64 .
 
 arm:
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o build/$(APP)-linux-arm64 .
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bin/$(APP)-linux-arm64 .
 
 darwin:
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-darwin-arm64 .
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o bin/$(APP)-darwin-arm64 .
 
 windows:
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o build/$(APP)-windows-amd64.exe .
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o bin/$(APP)-windows-amd64.exe .
 
 image:
 	docker buildx create --use --name $(APP)-builder || true
